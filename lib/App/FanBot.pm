@@ -7,7 +7,7 @@ use Class::Accessor::Lite (
         'my_id', 
         'is_background',
         '_cred','_search_keywords', '_exclude_users', '_exclude_patterns', '_exclude_urls',
-        '_exclude_clients', 'search_interval',  'app_name', 'twitty',         '_following_ids',
+        '_exclude_clients', 'search_interval',  'app_name', 'twitty',      '_official_ids',
     ],
 );
 
@@ -57,6 +57,8 @@ sub new {
         ],
         _exclude_users => [
         ],
+        _official_ids => [
+        ],
         search_interval => 120,
         app_name        => $option_href->{app_name},
     };
@@ -86,9 +88,9 @@ sub _init_credential {
     };
 }
 
-sub following_ids {
+sub official_ids {
     my ($self) = @_;
-    return @{ $self->_following_ids };
+    return @{ $self->_official_ids };
 }
 
 sub credential {
@@ -121,10 +123,9 @@ sub exclude_clients {
     return @{ $self->_exclude_clients };
 }
 
-# streaming で follow に渡してる id かどうか(フォローしているユーザではない)
-sub is_following {
+sub is_official {
     my ($self, $tweet) = @_;
-    return any { $_ eq $tweet->{user}->{id} } $self->following_ids;
+    return any { $_ eq $tweet->{user}->{id} } $self->official_ids;
 }
 
 # 自分へのメンションかどうか
@@ -252,7 +253,7 @@ sub reflesh_searched {
     if( all {  $self->{searched}->{$_} } $self->search_keywords ) {
         my $max_id = max($self->{since_id}->{since_id}, @{ $self->{tweeted} });
         $self->{since_id} = { since_id => $max_id };
-        $self->{tweeted} = [];
+        $self->{tweeted}  = [];
         $self->{searched} = {};
     }
 }
