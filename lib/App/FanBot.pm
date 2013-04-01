@@ -142,14 +142,9 @@ sub search_timer {
         after    => 5,# latest_id_update を待つため
         interval => $self->search_interval || 120,
         cb       => sub {
-            return if ( !defined $self->{since_id} );
+            #return if ( !defined $self->{since_id} );
             for my $keyword ( $self->search_keywords ) {
-                if( defined $self->search_timer_cb ) {
-                 
-                }
-                else {
-                    $self->search_and_rt($keyword);
-                }
+                $self->search_and_rt($keyword);
             }
         },
     );
@@ -224,7 +219,13 @@ sub search_and_rt {
             next if ( any { $client =~ qr/$_/i } $self->exclude_clients );
             next if ( $self->is_exclude_url(@{ $tweet->{entities}->{urls} || [] } ) );
 
-            $self->do_rt($id, $user, $text);
+            my $cb = $self->search_timer_cb;
+            if( !defined $cb ) {
+                $self->do_rt($id, $user, $text);
+            }
+            else {
+                $self->$cb($tweet);
+            }
             push @{ $self->{tweeted} }, $id;
         }
         $self->{searched}->{$keyword} = 1;
