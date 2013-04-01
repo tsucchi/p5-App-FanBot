@@ -4,10 +4,10 @@ use warnings;
 use utf8;
 use Class::Accessor::Lite (
     ro => [
-        'my_id', 
-        'is_background',
-        '_cred','_search_keywords', '_exclude_users', '_exclude_patterns', '_exclude_urls',
-        '_exclude_clients', 'search_interval',  'app_name', 'twitty',      '_official_ids',
+        'my_id',            'is_background',   'search_timer_cb',   '_cred', 
+        '_search_keywords', '_exclude_users',  '_exclude_patterns', '_exclude_urls',
+        '_exclude_clients', 'search_interval', 'app_name',          'twitty',
+        '_official_ids',
     ],
 );
 
@@ -61,6 +61,7 @@ sub new {
         ],
         search_interval => 120,
         app_name        => $option_href->{app_name},
+        search_timer_cb => undef,
     };
     bless $self, $class;
     $self->_init_credential();
@@ -143,7 +144,12 @@ sub search_timer {
         cb       => sub {
             return if ( !defined $self->{since_id} );
             for my $keyword ( $self->search_keywords ) {
-                $self->search_and_rt($keyword);
+                if( defined $self->search_timer_cb ) {
+                 
+                }
+                else {
+                    $self->search_and_rt($keyword);
+                }
             }
         },
     );
