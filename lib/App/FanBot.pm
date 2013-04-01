@@ -89,6 +89,19 @@ sub _init_credential {
     };
 }
 
+# bot として実行します。
+sub run {
+    my ($self) = @_;
+
+    $self->logging('start', 'warn');
+    $self->update_latest_since_id();
+
+    my $cv = AnyEvent->condvar;
+    my $search_timer = $self->search_timer();
+
+    $cv->recv;
+}
+
 sub official_ids {
     my ($self) = @_;
     return @{ $self->_official_ids };
